@@ -1,48 +1,58 @@
 # ExplainerBoard
 
-A shared whiteboard that runs entirely in the browser — no server. Drawing tools,
-text, pan/zoom, undo/redo, SVG/PNG export, and **live peer-to-peer collaboration**
-with cursors, all in one static `index.html`. Because there's no backend, it hosts
-on GitHub Pages for free.
+A shared whiteboard that runs entirely in the browser — no server. It mirrors most
+of MIT CoCreate's toolset and hosts on GitHub Pages for free, because there's no
+backend: drawing is client-side and collaboration is peer-to-peer.
+
+## Features (vs CoCreate)
+
+Tools: select/move, pan (H or hold Space), pen, line, rectangle, ellipse, text,
+eraser. Marquee multi-select (drag empty space), shift-click to add/remove.
+
+Styles: full colour palette + custom colour picker, four stroke widths, solid /
+dashed / dotted lines, arrowheads (none / end / both), opacity slider, fill toggle.
+
+Canvas: infinite pan & scroll-zoom, zoom in/out, reset to 100%, zoom-to-fit,
+square **and** triangular grids, snap-to-grid, dark mode.
+
+Pages: previous / next / add / duplicate, with a live page counter.
+
+Editing: undo / redo, duplicate (Ctrl+D), copy/paste (Ctrl+C / Ctrl+V),
+select-all (Ctrl+A), delete.
+
+Collaboration: shareable room links, live labelled cursors, presence avatars,
+head-count, editable name. Cursors hide when a peer is on another page.
+
+Export & storage: export the current page as SVG or PNG, save/open the whole
+multi-page board as a `.json` file, per-room offline persistence (IndexedDB).
+
+### Not yet included (the three heavy ones)
+- **LaTeX math** in text (CoCreate uses MathJax) — needs a math renderer like KaTeX.
+- **Image embedding** — can be added as drag/drop & paste of image files.
+- **Full time-travel history** — undo/redo covers the common case; a history
+  scrubber is a larger build.
+Each is a clean add-on — ask and I'll wire it in.
 
 ## Deploy to explainerboard.gcjana.in
 
-1. Put `index.html` (and `CNAME`) in the repo that serves your Pages site.
-   - If the site lives at the **root** of `gcjana.in`, this board probably belongs
-     in a **subdirectory or its own repo** so it doesn't overwrite your homepage.
-   - The included `CNAME` contains `explainerboard.gcjana.in`. Keep it **only** if
-     this repo is the one mapped to that subdomain. If your existing repo already
-     has a CNAME, don't add a second one — one CNAME per Pages site.
-2. Commit and push.
-3. In the repo's **Settings → Pages**, confirm the source branch/folder and the
-   custom domain `explainerboard.gcjana.in`.
-4. In your DNS (wherever gcjana.in is managed), add a **CNAME record**:
-   `explainerboard` → `<your-github-username>.github.io`
-5. Wait for DNS + Pages to issue HTTPS (a few minutes to an hour), then open
-   https://www.explainerboard.gcjana.in
+1. Put `index.html` (and `CNAME`) in the repo that serves your Pages site. If
+   `gcjana.in` itself is served from the same repo, put this in its own repo or a
+   subfolder so it doesn't overwrite your homepage.
+2. Keep the included `CNAME` (`explainerboard.gcjana.in`) only if this repo is the
+   one mapped to that subdomain. One CNAME per Pages site.
+3. Commit and push. In **Settings → Pages**, confirm the branch/folder and custom
+   domain. In DNS, add a CNAME record: `explainerboard` → `<username>.github.io`.
+4. Open https://explainerboard.gcjana.in once HTTPS is issued.
 
-## Using it
+## Keyboard
 
-- Pick a tool from the left dock (or press V P L R O T E). Colours and stroke
-  width are in the bottom tray; **Fill** toggles filled shapes.
-- **Scroll** to zoom, **hold Space + drag** (or drag empty space with the Select
-  tool) to pan. The % chip resets the view.
-- **Share** copies the room link. Anyone who opens that link joins the same board
-  and you'll see each other's cursors live.
-- **Board** menu: export SVG/PNG, save/open a `.json` board file, or clear.
+V select · H pan · P pen · L line · R rect · O ellipse · T text · E eraser · G grid
+Ctrl+Z undo · Ctrl+Shift+Z redo · Ctrl+C/V copy/paste · Ctrl+D duplicate · Ctrl+A all · Del delete
 
 ## About "live" collaboration
 
-Sync uses [Yjs](https://yjs.dev) over WebRTC (`y-webrtc`) through **public signaling
-servers**. That's what makes zero-backend collaboration possible, but those servers
-are community-run and can occasionally be down. When that happens the board simply
-drops to **Solo** mode — it keeps working locally, you just won't sync with others.
-
-For rock-solid collaboration you can later run your own tiny signaling server, or
-swap the sync layer for Firebase/Supabase. Ask and I'll wire that in.
-
-## Notes
-
-- Boards are keyed by the `#room=…` id in the URL. No id = a fresh private room.
-- Local drawings persist in your browser (IndexedDB) per room.
-- Anyone with a room link can edit it — treat links like keys.
+Sync uses Yjs over WebRTC (`y-webrtc`) through **public signaling servers** — that's
+what makes zero-backend collaboration possible, but they're community-run and can
+occasionally be down. When that happens the board drops to **Solo** and keeps
+working locally. For always-on sync, run your own small signaling server or move the
+sync layer to Firebase/Supabase. Anyone with a room link can edit — treat links like keys.
