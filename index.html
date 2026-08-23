@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>ExplainerBoard | Dr.GC Jana — Free Collaborative Whiteboard to Sketch &amp; Explain</title>
+<title>ExplainerBoard — Free Collaborative Whiteboard to Sketch &amp; Explain | Dr. GC Jana/title>
 <meta name="description" content="ExplainerBoard is a free online collaborative whiteboard — draw, add text, shapes and arrows, and explain ideas together in real time. No sign-up, works in any browser." />
 <link rel="canonical" href="https://explainerboard.gcjana.in/" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <meta name="keywords" content="collaborative whiteboard, online whiteboard, free whiteboard, real-time whiteboard, shared drawing, teaching whiteboard, sketch and explain, explainer board" />
-<meta name="author" content="ExplainerBoard" />
+<meta name="author" content="Dr. Gopal Chandra Jana" />
+<meta name="copyright" content="© Dr. Gopal Chandra Jana" />
 <meta name="theme-color" content="#16181D" />
 <meta name="application-name" content="ExplainerBoard" />
 
@@ -41,6 +42,8 @@
   "@type": "WebApplication",
   "name": "ExplainerBoard",
   "url": "https://explainerboard.gcjana.in/",
+  "author": { "@type": "Person", "name": "Dr. Gopal Chandra Jana", "url": "https://www.gcjana.in" },
+  "creator": { "@type": "Person", "name": "Dr. Gopal Chandra Jana", "url": "https://www.gcjana.in" },
   "description": "A free collaborative whiteboard to draw, add text and shapes, and explain ideas together in real time. No sign-up, works in any modern browser.",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Any (web browser)",
@@ -100,13 +103,18 @@
   body.dark .brand { color: #EDEFF5; }
   .brand .dot { width: 11px; height: 11px; border-radius: 3px; background: var(--accent); transform: rotate(45deg); }
   .brand small { font-family:'Inter'; font-weight:500; color: var(--muted); font-size: 12px; }
+  .credit { position: fixed; top: 41px; left: 19px; z-index: 32; font: 500 11.5px 'Inter'; color: var(--muted); pointer-events: auto; }
+  .credit a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(154,160,180,.45); }
+  .credit a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  body.dark .credit { color: #9AA0B4; }
 
   .dock {
-    position: fixed; top: 50%; left: 16px; transform: translateY(-50%); z-index: 30;
+    position: fixed; top: 84px; left: 16px; z-index: 30;
     background: var(--chrome); border-radius: 18px; padding: 8px;
     display: flex; flex-direction: column; gap: 4px; box-shadow: var(--dock-shadow);
-    max-height: calc(100vh - 40px); overflow: visible;
+    max-height: calc(100vh - 100px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
   }
+  .dock::-webkit-scrollbar { width: 5px; } .dock::-webkit-scrollbar-thumb { background: var(--chrome-line); border-radius: 9px; }
   .dock hr { border: 0; border-top: 1px solid var(--chrome-line); margin: 5px 6px; }
   .tool {
     width: 40px; height: 40px; border: 0; border-radius: 11px; background: transparent;
@@ -270,6 +278,7 @@
   </noscript>
 
   <h1 class="brand"><span class="dot"></span>ExplainerBoard <small>sketch &amp; explain, together</small></h1>
+  <div class="credit">© <a href="https://www.gcjana.in" target="_blank" rel="noopener">Dr. Gopal Chandra Jana</a></div>
 
   <div class="dock" id="dock">
     <button class="tool active" data-tool="select" title="Select / Move (V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l6 16 2-6 6-2z"/></svg><span class="kbd">V</span></button>
