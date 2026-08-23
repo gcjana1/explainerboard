@@ -42,7 +42,7 @@ Each is a clean add-on — ask and I'll wire it in.
    one mapped to that subdomain. One CNAME per Pages site.
 3. Commit and push. In **Settings → Pages**, confirm the branch/folder and custom
    domain. In DNS, add a CNAME record: `explainerboard` → `<username>.github.io`.
-4. Open https://explainerboard.gcjana.in once HTTPS is issued.
+4. Open https://www.explainerboard.gcjana.in once HTTPS is issued.
 
 ## Keyboard
 
