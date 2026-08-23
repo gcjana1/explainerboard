@@ -1,0 +1,10 @@
+{
+  "name": "ExplainerBoard",
+  "short_name": "ExplainerBoard",
+  "description": "A free collaborative whiteboard to sketch and explain ideas together in real time.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFAF6",
+  "theme_color": "#16181D",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -3,8 +3,61 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>ExplainerBoard — sketch and explain, together | Dr.GC Jana</title>
-<meta name="description" content="A shared whiteboard for sketching ideas and explaining them together, live." />
+<title>ExplainerBoard — Free Collaborative Whiteboard to Sketch &amp; Explain</title>
+<meta name="description" content="ExplainerBoard is a free online collaborative whiteboard — draw, add text, shapes and arrows, and explain ideas together in real time. No sign-up, works in any browser." />
+<link rel="canonical" href="https://explainerboard.gcjana.in/" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="keywords" content="collaborative whiteboard, online whiteboard, free whiteboard, real-time whiteboard, shared drawing, teaching whiteboard, sketch and explain, explainer board" />
+<meta name="author" content="ExplainerBoard" />
+<meta name="theme-color" content="#16181D" />
+<meta name="application-name" content="ExplainerBoard" />
+
+<!-- Open Graph (Facebook, LinkedIn, WhatsApp, etc.) -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ExplainerBoard" />
+<meta property="og:title" content="ExplainerBoard — free collaborative whiteboard" />
+<meta property="og:description" content="Draw, add text and shapes, and explain ideas together in real time. Free, no sign-up, works in any browser." />
+<meta property="og:url" content="https://explainerboard.gcjana.in/" />
+<meta property="og:image" content="https://explainerboard.gcjana.in/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="ExplainerBoard — a free collaborative whiteboard" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="ExplainerBoard — free collaborative whiteboard" />
+<meta name="twitter:description" content="Draw, add text and shapes, and explain ideas together in real time. Free, no sign-up." />
+<meta name="twitter:image" content="https://explainerboard.gcjana.in/og-image.png" />
+
+<!-- Icons & manifest -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<!-- Structured data for rich results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ExplainerBoard",
+  "url": "https://explainerboard.gcjana.in/",
+  "description": "A free collaborative whiteboard to draw, add text and shapes, and explain ideas together in real time. No sign-up, works in any modern browser.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires JavaScript",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Freehand pen, lines, rectangles, ellipses and text",
+    "Arrows, dashed and dotted lines, adjustable opacity",
+    "Multiple pages with duplication",
+    "Real-time collaboration with live cursors",
+    "Dark mode, grids and snap-to-grid",
+    "Export to SVG, PNG and PDF"
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -39,7 +92,7 @@
   #cursors { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 
   .brand {
-    position: fixed; top: 16px; left: 18px; z-index: 30;
+    position: fixed; top: 16px; left: 18px; z-index: 30; margin: 0;
     display: flex; align-items: center; gap: 9px;
     font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px;
     letter-spacing: -.01em; color: var(--ink); user-select: none; pointer-events: none;
@@ -110,6 +163,16 @@
     font: 600 13px 'Inter'; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; gap: 7px; }
   body.dark .share { background: #EDEFF5; color: #14161B; }
   .share:hover { background: #000; } .share svg { width: 15px; height: 15px; }
+  .lockbtn { background: #fff; border: 1px solid rgba(16,18,29,.10); border-radius: 11px; height: 40px; padding: 0 14px;
+    font: 600 13px 'Inter'; color: var(--ink); cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; gap: 7px; }
+  .lockbtn svg { width: 15px; height: 15px; }
+  .lockbtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lockbtn.disabled, .lockbtn:disabled { background: #F2F1EA; color: var(--muted); cursor: not-allowed; box-shadow: none; }
+  body.dark .lockbtn { background: #1E2230; color: #EDEFF5; border-color: #333a52; }
+  body.dark .lockbtn.disabled, body.dark .lockbtn:disabled { background: #2A2F42; color: var(--muted); }
+  .lockbanner { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 45; background: var(--ink); color: #fff;
+    font: 600 12px 'Inter'; padding: 9px 16px; border-radius: 10px; box-shadow: var(--dock-shadow); }
+  body.dark .lockbanner { background: #EDEFF5; color: #14161B; }
 
   .pagebar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 30;
     background: #fff; border: 1px solid rgba(16,18,29,.10); border-radius: 11px; box-shadow: var(--shadow);
@@ -133,8 +196,10 @@
     border: 2px solid #fff; display: grid; place-items: center; color: #fff; font: 700 10px 'Inter'; }
   body.dark .avatars .av { border-color: #1E2230; }
   .avatars .av:first-child { margin-left: 0; }
-  .me-name { border: 0; background: transparent; font: 600 12px 'Inter'; color: var(--ink); width: 82px; padding: 2px 4px; border-radius: 6px; outline: none; }
-  body.dark .me-name { color: #EDEFF5; } .me-name:focus { background: #F2F1EA; } body.dark .me-name:focus { background: #2A2F42; }
+  .me-name { border: 1px solid rgba(16,18,29,.16); background: #F7F6F0; font: 600 12px 'Inter'; color: var(--ink); width: 104px; padding: 4px 9px; border-radius: 8px; outline: none; }
+  .me-name::placeholder { color: var(--muted); font-weight: 500; }
+  .me-name:focus { border-color: var(--accent); background: #fff; }
+  body.dark .me-name { color: #EDEFF5; background: #2A2F42; border-color: #3A4056; } body.dark .me-name:focus { background: #1E2230; border-color: var(--accent); }
 
   .zoom { position: fixed; bottom: 18px; right: 14px; z-index: 30; background: #fff; border: 1px solid rgba(16,18,29,.10);
     border-radius: 11px; box-shadow: var(--shadow); display: flex; align-items: center; overflow: hidden; }
@@ -174,7 +239,8 @@
   @media (max-width: 720px) {
     .brand small { display: none; }
     .pill button span { display: none; }
-    .presence { display: none; }
+    .lockbtn .lbl { display: none; }
+    .presence .avatars { display: none; }
   }
 </style>
 </head>
@@ -185,7 +251,25 @@
     <textarea id="textedit" spellcheck="false"></textarea>
   </div>
 
-  <div class="brand"><span class="dot"></span>ExplainerBoard <small>sketch &amp; explain, together</small></div>
+  <noscript>
+    <div style="position:fixed;inset:0;z-index:1000;background:#FBFAF6;color:#16181D;overflow:auto;padding:48px 22px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;">
+      <div style="max-width:760px;margin:0 auto;">
+        <h2 style="font-size:30px;margin:0 0 10px;">ExplainerBoard — a free collaborative whiteboard</h2>
+        <p style="font-size:17px;line-height:1.6;color:#3c404a;margin:0 0 8px;">ExplainerBoard is a free online whiteboard for sketching ideas and explaining them together in real time. Draw with a pen, add lines, rectangles, ellipses, arrows and text, work across multiple pages, switch to dark mode, and export your board as SVG, PNG or PDF — all in your browser, with no sign-up required.</p>
+        <h3 style="font-size:20px;margin:22px 0 6px;">What you can do</h3>
+        <ul style="font-size:16px;line-height:1.7;color:#3c404a;">
+          <li>Freehand pen, lines, rectangles, ellipses, arrows and text</li>
+          <li>Dashed and dotted strokes, adjustable width and opacity, fill</li>
+          <li>Multiple pages with duplication, grids and snap-to-grid</li>
+          <li>Real-time collaboration with live cursors and a presenter lock</li>
+          <li>Export to SVG, PNG and PDF; save and open board files</li>
+        </ul>
+        <p style="font-size:16px;line-height:1.6;color:#3c404a;"><strong>ExplainerBoard needs JavaScript to run.</strong> Please enable JavaScript in your browser to start drawing.</p>
+      </div>
+    </div>
+  </noscript>
+
+  <h1 class="brand"><span class="dot"></span>ExplainerBoard <small>sketch &amp; explain, together</small></h1>
 
   <div class="dock" id="dock">
     <button class="tool active" data-tool="select" title="Select / Move (V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l6 16 2-6 6-2z"/></svg><span class="kbd">V</span></button>
@@ -232,13 +316,14 @@
       <button id="redoBtn" title="Redo (Ctrl+Shift+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 7l5 5-5 5M20 12H9a5 5 0 000 10h1"/></svg></button>
       <button id="menuBtn" title="Board menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Board</span></button>
     </div>
+    <button class="lockbtn" id="lockBtn" title="Lock editing to just you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span class="lbl">Lock editing</span></button>
     <button class="share" id="shareBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Share</button>
   </div>
 
   <div class="presence">
     <div class="status" id="status"><span class="led"></span><span id="statusText">Solo</span></div>
     <div class="avatars" id="avatars"></div>
-    <input class="me-name" id="meName" maxlength="18" title="Your name" />
+    <input class="me-name" id="meName" maxlength="18" placeholder="Your name" title="Type your name (shows on your cursor)" />
   </div>
 
   <div class="zoom">
@@ -251,6 +336,7 @@
   <div class="menu" id="menu">
     <button data-act="svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v5h5M14 3l6 6v11a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg>Export page as SVG</button>
     <button data-act="png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 15l-5-5-8 8"/></svg>Export page as PNG</button>
+    <button data-act="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v5h5M14 3l6 6v11a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M8.5 13.5h1a1.2 1.2 0 010 2.4h-1zM8.5 13.5v4M13 13.5v4h.6a1.6 2 0 000-4zM16.8 13.5h1.8M16.8 13.5v4M16.8 15.5h1.4" stroke-width="1.2"/></svg>Export page as PDF</button>
     <hr/>
     <button data-act="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save board to file</button>
     <button data-act="load"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h6l2 2h8v12a2 2 0 01-2 2H4z"/><path d="M12 11v6M9 14l3-3 3 3"/></svg>Open board file</button>
@@ -274,8 +360,13 @@ function showFatal(msg){
     (document.body||document.documentElement).appendChild(el); }
   const t=document.createElement("div"); t.textContent="⚠ Something errored (please screenshot this): "+msg; el.appendChild(t);
 }
-window.addEventListener("error",(e)=>{ showFatal((e.message||"error")+"  ["+String(e.filename||"").split("/").pop()+":"+e.lineno+"]"); });
-window.addEventListener("unhandledrejection",(e)=>{ const r=e.reason; showFatal("Promise rejected: "+((r&&r.message)||String(r))); });
+window.addEventListener("error",(e)=>{
+  const f=String(e.filename||""), msg=String(e.message||"");
+  // ignore cross-origin / third-party noise (e.g. the flaky p2p sync libraries)
+  if (f.includes("esm.sh") || f.includes("jsdelivr") || msg==="Script error." || msg==="Script error"){ console.warn("(ignored external error)", msg, f); return; }
+  showFatal(msg+"  ["+f.split("/").pop()+":"+e.lineno+"]");
+});
+window.addEventListener("unhandledrejection",(e)=>{ const r=e.reason; console.warn("(sync/promise issue, non-fatal — board keeps working)", (r&&r.message)||r); });
 
 const COLORS = ["#16181D","#6B7280","#B7BDC8","#FFFFFF","#2F6BFF","#12B5A5","#2FBF6B","#7A5AF8","#E8497B","#FF3B30","#FF5C49","#F5A623","#F5D90A"];
 const WIDTHS = [2, 4, 8, 16];
@@ -325,6 +416,7 @@ async function initStore() {
     provider = new WebrtcProvider("explainerboard-"+room, ydoc, { signaling: ["wss://signaling.yjs.dev","wss://y-webrtc-eu.fly.dev"] });
     awareness = provider.awareness;
     awareness.setLocalStateField("user", me);
+    awareness.setLocalStateField("presenting", false);
     awareness.on("change", renderPresence);
     provider.on("status", (ev)=>{ setLive(!!(ev && ev.connected)); });
     provider.on("peers", (ev)=>{ const n=(ev.webrtcPeers?ev.webrtcPeers.length:0)+(ev.bcPeers?ev.bcPeers.length:0); if(n>0) setLive(true); });
@@ -347,14 +439,17 @@ function clampPage(){ const l=pageList(); state.pageIdx = clamp(state.pageIdx,0,
 function shapesEntries(){ return usingY()? [...ymap.entries()] : [...localModel.entries()]; }
 function getShape(id){ return usingY()? ymap.get(id) : localModel.get(id); }
 function putShape(id, shape){
+  if (lockedOut()) return;
   if (usingY()){ ymap.set(id, shape); }
   else { localHistory.push({t:"put", id, prev: localModel.get(id)||null, next: shape}); localFuture.length=0; localModel.set(id, shape); notify(); }
 }
 function delShape(id){
+  if (lockedOut()) return;
   if (usingY()){ ymap.delete(id); }
   else { if(!localModel.has(id)) return; localHistory.push({t:"del", id, prev: localModel.get(id)}); localFuture.length=0; localModel.delete(id); notify(); }
 }
 function clearPage(){
+  if (lockedOut()) return;
   const pg = currentPage();
   const ids = shapesEntries().filter(([,s])=>s.page===pg).map(([id])=>id);
   if (usingY()){ ydoc.transact(()=>ids.forEach(id=>ymap.delete(id))); }
@@ -362,6 +457,7 @@ function clearPage(){
 }
 function txn(fn){ if(usingY()) ydoc.transact(fn); else fn(); }
 function doUndo(){
+  if (lockedOut()) return;
   if (usingY()){ undoMgr && undoMgr.undo(); }
   else { const op=localHistory.pop(); if(!op) return; localFuture.push(op);
     if(op.t==="put"){ if(op.prev) localModel.set(op.id,op.prev); else localModel.delete(op.id); }
@@ -371,6 +467,7 @@ function doUndo(){
     notify(); renderPages(); }
 }
 function doRedo(){
+  if (lockedOut()) return;
   if (usingY()){ undoMgr && undoMgr.redo(); }
   else { const op=localFuture.pop(); if(!op) return; localHistory.push(op);
     if(op.t==="put"){ localModel.set(op.id,op.next); }
@@ -474,6 +571,11 @@ function onDown(e){
   if (e.target.closest(".dock,.tray,.controls,.zoom,.presence,.menu,.brand,.pagebar")) return;
   hideMenu();
   const b = toBoard(e.clientX, e.clientY);
+  if (lockedOut()){
+    const pan = spaceDown || e.button===1 || state.tool==="pan";
+    if (pan){ action={kind:"pan", sx:e.clientX, sy:e.clientY, ox:state.view.x, oy:state.view.y}; stage.style.cursor="grabbing"; }
+    return;
+  }
   const panMode = spaceDown || e.button===1 || state.tool==="pan";
   if (panMode){ action={kind:"pan", sx:e.clientX, sy:e.clientY, ox:state.view.x, oy:state.view.y}; stage.style.cursor="grabbing"; return; }
 
@@ -616,18 +718,38 @@ function renderPresence(){
     el.querySelector(".tag").textContent=st.user.name||"Guest"; el.querySelector(".tag").style.background=st.user.color;
     const scr=toScreen(st.cursor.x,st.cursor.y); el.style.transform=`translate(${scr.x}px, ${scr.y}px)`; }
   for(const [cid,el] of [...rcEls.entries()]){ if(!seen.has(cid)){ el.remove(); rcEls.delete(cid); } }
+  updateLockUI();
 }
 function setLive(on){ const st=document.getElementById("status"); st.classList.toggle("live",!!on); document.getElementById("statusText").textContent=on?"Live":"Solo"; }
+
+/* ---------------- presenter lock ---------------- */
+function presenterId(){ if(!awareness) return null; let min=null; for(const [cid,st] of awareness.getStates()){ if(st && st.presenting){ if(min===null||cid<min) min=cid; } } return min; }
+function amPresenter(){ return !!awareness && presenterId()===awareness.clientID; }
+function lockedOut(){ if(!awareness) return false; const p=presenterId(); return p!==null && p!==awareness.clientID; }
+function presenterName(){ const p=presenterId(); if(p===null||!awareness) return ""; if(p===awareness.clientID) return me.name||"You"; const st=awareness.getStates().get(p); return (st&&st.user&&st.user.name)||"Someone"; }
+const lockBtn=document.getElementById("lockBtn");
+lockBtn.onclick=()=>{ if(!awareness){ toast("Sharing isn't connected yet — lock works once others join"); return; } if(lockedOut()) return; const ls=awareness.getLocalState(); const cur=ls&&ls.presenting; awareness.setLocalStateField("presenting", !cur); updateLockUI(); toast(!cur?"You locked editing — others are view-only":"Editing unlocked for everyone"); };
+function updateLockUI(){
+  const lb=document.getElementById("lockBtn"); if(!lb) return;
+  const out=lockedOut(), mine=amPresenter();
+  lb.classList.toggle("on", mine); lb.disabled=out; lb.classList.toggle("disabled", out);
+  const lbl=lb.querySelector(".lbl"); if(lbl) lbl.textContent = mine?"You're editing":(out?"Locked":"Lock editing");
+  lb.title = mine?"You have editing — click to let everyone edit":(out?(presenterName()+" is editing"):"Lock editing to just you");
+  let ban=document.getElementById("lockBanner");
+  if(out){ if(!ban){ ban=document.createElement("div"); ban.id="lockBanner"; ban.className="lockbanner"; document.body.appendChild(ban); } ban.textContent="🔒 "+presenterName()+" is editing — you're in view-only mode"; }
+  else if(ban){ ban.remove(); }
+  if(!action) stage.style.cursor = out?"not-allowed":(state.tool==="pan"?"grab":(state.tool==="select"?"default":"crosshair"));
+}
 
 /* ---------------- pages UI ---------------- */
 function renderPages(){ const l=pageList(); clampPage(); document.getElementById("pageLabel").textContent=`${state.pageIdx+1} / ${l.length}`; }
 function gotoPage(idx){ const l=pageList(); state.pageIdx=clamp(idx,0,l.length-1); state.sel.clear(); commitText(); renderPages(); render(); renderPresence(); }
 document.getElementById("prevPage").onclick=()=>gotoPage(state.pageIdx-1);
 document.getElementById("nextPage").onclick=()=>gotoPage(state.pageIdx+1);
-document.getElementById("addPage").onclick=()=>{ materializePages(); const id="pg"+uid();
+document.getElementById("addPage").onclick=()=>{ if(lockedOut()){ toast(presenterName()+" is editing"); return; } materializePages(); const id="pg"+uid();
   if(usingY()) ypages.push([id]); else { localHistory.push({t:"pages",prev:localPages.slice(),next:localPages.concat([id])}); localFuture.length=0; localPages.push(id); }
   state.pageIdx=pageList().length-1; renderPages(); render(); toast("Page added"); };
-document.getElementById("dupPage").onclick=()=>{ materializePages(); const src=currentPage(); const id="pg"+uid();
+document.getElementById("dupPage").onclick=()=>{ if(lockedOut()){ toast(presenterName()+" is editing"); return; } materializePages(); const src=currentPage(); const id="pg"+uid();
   const copies=shapesEntries().filter(([,s])=>s.page===src).map(([,s])=>({...JSON.parse(JSON.stringify(s)),page:id}));
   txn(()=>{ if(usingY()) ypages.push([id]); else { localPages.push(id); } copies.forEach(s=>putShape(uid(),s)); });
   if(!usingY()){ localHistory.push({t:"pages",prev:localPages.slice(0,-1),next:localPages.slice()}); }
@@ -717,8 +839,24 @@ function buildSVG(){ const b=boundsOfPage(); const pad=24; const x=(b?b.x:0)-pad
 function download(name, blob){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
 function exportSVG(){ download("explainerboard.svg", new Blob([buildSVG()],{type:"image/svg+xml"})); toast("SVG downloaded"); }
 function exportPNG(){ const svg=buildSVG(); const img=new Image(); img.onload=()=>{ const scale=2, c=document.createElement("canvas"); c.width=img.width*scale; c.height=img.height*scale; const ctx=c.getContext("2d"); ctx.scale(scale,scale); ctx.drawImage(img,0,0); c.toBlob(bl=>{ download("explainerboard.png",bl); toast("PNG downloaded"); }); }; img.onerror=()=>toast("Couldn't render PNG"); img.src="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(svg))); }
+async function exportPDF(){
+  toast("Preparing PDF…");
+  let mod; try{ mod = await import("https://esm.sh/jspdf@2.5.1"); }
+  catch(e){ console.warn(e); toast("PDF export needs a network connection"); return; }
+  const JsPDF = mod.jsPDF || (mod.default && mod.default.jsPDF) || mod.default;
+  const svg=buildSVG(); const img=new Image();
+  img.onload=()=>{ try{
+      const scale=2, c=document.createElement("canvas"); c.width=img.width*scale; c.height=img.height*scale;
+      const ctx=c.getContext("2d"); ctx.scale(scale,scale); ctx.drawImage(img,0,0);
+      const png=c.toDataURL("image/png"); const w=img.width||800, h=img.height||600;
+      const pdf=new JsPDF({ orientation: w>=h?"landscape":"portrait", unit:"pt", format:[w,h], compress:true });
+      pdf.addImage(png,"PNG",0,0,w,h); pdf.save("explainerboard.pdf"); toast("PDF downloaded");
+    }catch(err){ console.warn(err); toast("Couldn't build the PDF"); } };
+  img.onerror=()=>toast("Couldn't render PDF");
+  img.src="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(svg)));
+}
 function saveFile(){ const data={ app:"explainerboard", version:2, pages:pageList(), shapes:shapesEntries().map(([id,s])=>({id,...s})) }; download("explainerboard.json", new Blob([JSON.stringify(data)],{type:"application/json"})); toast("Board saved"); }
-document.getElementById("fileInput").addEventListener("change",(e)=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
+document.getElementById("fileInput").addEventListener("change",(e)=>{ if(lockedOut()){ toast(presenterName()+" is editing"); e.target.value=""; return; } const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
   rd.onload=()=>{ try{ const data=JSON.parse(rd.result); if(!data.shapes) throw 0;
     txn(()=>{ // clear everything
       const allIds=shapesEntries().map(([id])=>id); allIds.forEach(id=>delShape(id));
@@ -735,7 +873,7 @@ document.getElementById("menuBtn").onclick=(e)=>{ const rr=e.currentTarget.getBo
 function hideMenu(){ menu.style.display="none"; }
 window.addEventListener("pointerdown",(e)=>{ if(!e.target.closest("#menu,#menuBtn")) hideMenu(); }, true);
 menu.addEventListener("click",(e)=>{ const b=e.target.closest("button[data-act]"); if(!b) return; const act=b.dataset.act; hideMenu();
-  if(act==="svg") exportSVG(); else if(act==="png") exportPNG(); else if(act==="save") saveFile();
+  if(act==="svg") exportSVG(); else if(act==="png") exportPNG(); else if(act==="pdf") exportPDF(); else if(act==="save") saveFile();
   else if(act==="load") document.getElementById("fileInput").click();
   else if(act==="clear"){ if(confirm("Clear this page for everyone in the room?")){ clearPage(); state.sel.clear(); } } });
 document.getElementById("undoBtn").onclick=doUndo; document.getElementById("redoBtn").onclick=doRedo;
