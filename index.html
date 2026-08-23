@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>ExplainerBoard — sketch and explain, together</title>
+<title>ExplainerBoard — sketch and explain, together | Dr.GC Jana</title>
 <meta name="description" content="A shared whiteboard for sketching ideas and explaining them together, live." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -265,6 +265,18 @@
 window.global = window.global || window;
 if (!window.process) window.process = { env: {}, nextTick: (f)=>setTimeout(f,0) };
 
+/* ---- visible error reporter (helps diagnose issues on the live site) ---- */
+function showFatal(msg){
+  let el=document.getElementById("fatalBanner");
+  if(!el){ el=document.createElement("div"); el.id="fatalBanner";
+    el.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#B3271E;color:#fff;font:600 12px/1.45 Inter,system-ui,sans-serif;padding:12px 40px 12px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.32);white-space:pre-wrap;word-break:break-word";
+    const x=document.createElement("button"); x.textContent="×"; x.style.cssText="position:absolute;top:6px;right:8px;background:none;border:0;color:#fff;font-size:20px;cursor:pointer;line-height:1"; x.onclick=()=>el.remove(); el.appendChild(x);
+    (document.body||document.documentElement).appendChild(el); }
+  const t=document.createElement("div"); t.textContent="⚠ Something errored (please screenshot this): "+msg; el.appendChild(t);
+}
+window.addEventListener("error",(e)=>{ showFatal((e.message||"error")+"  ["+String(e.filename||"").split("/").pop()+":"+e.lineno+"]"); });
+window.addEventListener("unhandledrejection",(e)=>{ const r=e.reason; showFatal("Promise rejected: "+((r&&r.message)||String(r))); });
+
 const COLORS = ["#16181D","#6B7280","#B7BDC8","#FFFFFF","#2F6BFF","#12B5A5","#2FBF6B","#7A5AF8","#E8497B","#FF3B30","#FF5C49","#F5A623","#F5D90A"];
 const WIDTHS = [2, 4, 8, 16];
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -305,6 +317,11 @@ async function initStore() {
     ymap = ydoc.getMap("shapes"); ypages = ydoc.getArray("pages");
     if (idb) { try { new idb.IndexeddbPersistence("eb-"+room, ydoc); } catch(e){} }
     undoMgr = new Y.UndoManager([ymap, ypages]);
+    // preserve anything drawn before collaboration finished loading
+    if (localModel.size || localPages.length){
+      ydoc.transact(()=>{ if (localPages.length && ypages.length===0) ypages.insert(0, localPages.slice()); for (const [id,s] of localModel) ymap.set(id, s); });
+      localModel.clear(); localPages.length=0;
+    }
     provider = new WebrtcProvider("explainerboard-"+room, ydoc, { signaling: ["wss://signaling.yjs.dev","wss://y-webrtc-eu.fly.dev"] });
     awareness = provider.awareness;
     awareness.setLocalStateField("user", me);
