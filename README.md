@@ -19,7 +19,7 @@ on GitHub Pages for free.
 4. In your DNS (wherever gcjana.in is managed), add a **CNAME record**:
    `explainerboard` → `<your-github-username>.github.io`
 5. Wait for DNS + Pages to issue HTTPS (a few minutes to an hour), then open
-   https://explainerboard.gcjana.in
+   https://www.explainerboard.gcjana.in
 
 ## Using it
 
