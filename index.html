@@ -767,6 +767,11 @@ function renderPresence(){
   av.innerHTML=""; const all=[{user:me},...states.map(([,st])=>st)].filter(s=>s.user);
   all.slice(0,5).forEach(s=>{ const d=document.createElement("div"); d.className="av"; d.style.background=s.user.color; d.textContent=(s.user.name||"?").slice(0,1).toUpperCase(); d.title=s.user.name||""; av.appendChild(d); });
   if(states.length>0) setLive(true);
+  // while someone else is presenting, follow their page so they see the same slide
+  if(lockedOut()){
+    const p=presenterId(); const pst=awareness.getStates().get(p);
+    if(pst && pst.page){ const l=pageList(); const idx=l.indexOf(pst.page); if(idx>=0 && idx!==state.pageIdx){ state.pageIdx=idx; state.sel.clear(); renderPages(); render(); } }
+  }
   const pg=currentPage(); const seen=new Set();
   for(const [cid,st] of states){ if(!st.cursor||!st.user) continue; if(st.cursor.page && st.cursor.page!==pg){ const ex=rcEls.get(cid); if(ex){ex.remove(); rcEls.delete(cid);} continue; } seen.add(cid);
     let el=rcEls.get(cid); if(!el){ el=document.createElement("div"); el.className="rc"; el.innerHTML=`<svg viewBox="0 0 24 24" fill="${st.user.color}" stroke="#fff" stroke-width="1.4"><path d="M5 3l6 16 2-6 6-2z"/></svg><span class="tag"></span>`; cursorsLayer.appendChild(el); rcEls.set(cid,el); }
@@ -797,7 +802,7 @@ function updateLockUI(){
 }
 
 /* ---------------- pages UI ---------------- */
-function renderPages(){ const l=pageList(); clampPage(); document.getElementById("pageLabel").textContent=`${state.pageIdx+1} / ${l.length}`; }
+function renderPages(){ const l=pageList(); clampPage(); document.getElementById("pageLabel").textContent=`${state.pageIdx+1} / ${l.length}`; if(awareness){ try{ awareness.setLocalStateField("page", currentPage()); }catch(e){} } }
 function gotoPage(idx){ const l=pageList(); state.pageIdx=clamp(idx,0,l.length-1); state.sel.clear(); commitText(); renderPages(); render(); renderPresence(); }
 document.getElementById("prevPage").onclick=()=>gotoPage(state.pageIdx-1);
 document.getElementById("nextPage").onclick=()=>gotoPage(state.pageIdx+1);
@@ -980,11 +985,11 @@ async function ebImportPDF(file){
     toast("Rendering slide "+i+" of "+n+"…");
     const page=await pdf.getPage(i);
     const base=page.getViewport({scale:1});
-    const scale=1500/(base.width||1000);
+    const scale=1000/(base.width||1000);
     const vp=page.getViewport({scale:scale});
     const canvas=document.createElement("canvas"); canvas.width=Math.round(vp.width); canvas.height=Math.round(vp.height);
     await page.render({canvasContext:canvas.getContext("2d"), viewport:vp}).promise;
-    const href=canvas.toDataURL("image/jpeg", 0.82);
+    const href=canvas.toDataURL("image/jpeg", 0.62);
     const W=1000, H=Math.round(W*(vp.height/(vp.width||1)));
     const pid="pg"+uid();
     if(usingY()) ypages.push([pid]); else localPages.push(pid);
