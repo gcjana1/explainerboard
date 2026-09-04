@@ -427,7 +427,11 @@ const elFor = new Map();
 board.innerHTML = DEFS;
 
 /* ---------------- shared store ---------------- */
-let Y=null, ydoc=null, ymap=null, ypages=null, undoMgr=null, provider=null, awareness=null;
+/* ---- Live collaboration: paste your Liveblocks PUBLIC key (pk_...) here ----
+   Get it free at liveblocks.io → your project → API keys. Leave empty to stay
+   single-user. The public key is safe to expose in client code. */
+const LIVEBLOCKS_KEY = "pk_dev_aW6-PKNLWa42pd-Dc1teFXNaEpu0BjYOunsygLJx2aXVHCixjViXghEIV7wZTsN4";
+let Y=null, ydoc=null, ymap=null, ypages=null, undoMgr=null, provider=null, awareness=null, lbClient=null, lbRoom=null, lbLeave=null;
 let localModel = new Map(), localPages = [];
 let localHistory = [], localFuture = [];
 const observers = [];
@@ -437,26 +441,31 @@ const me = { name: loadName(), color: pickUserColor() };
 async function initStore() {
   try {
     const yjs = await import("https://esm.sh/yjs@13.6.20");
-    const { WebrtcProvider } = await import("https://esm.sh/y-webrtc@10.3.0?bundle");
-    let idb=null; try { idb = await import("https://esm.sh/y-indexeddb@9.0.12"); } catch(e){}
-    Y = yjs; ydoc = new Y.Doc();
+    Y = yjs;
+    if (!LIVEBLOCKS_KEY) throw new Error("no Liveblocks key set — running single-user");
+    const { createClient } = await import("https://esm.sh/@liveblocks/client@2?deps=yjs@13.6.20");
+    const { getYjsProviderForRoom } = await import("https://esm.sh/@liveblocks/yjs@2?deps=yjs@13.6.20");
+    lbClient = createClient({ publicApiKey: LIVEBLOCKS_KEY });
+    const enter = lbClient.enterRoom("explainerboard-"+room);
+    lbRoom = enter.room; lbLeave = enter.leave;
+    provider = getYjsProviderForRoom(lbRoom);
+    ydoc = provider.getYDoc();
     ymap = ydoc.getMap("shapes"); ypages = ydoc.getArray("pages");
-    if (idb) { try { new idb.IndexeddbPersistence("eb-"+room, ydoc); } catch(e){} }
     undoMgr = new Y.UndoManager([ymap, ypages]);
     // preserve anything drawn before collaboration finished loading
     if (localModel.size || localPages.length){
       ydoc.transact(()=>{ if (localPages.length && ypages.length===0) ypages.insert(0, localPages.slice()); for (const [id,s] of localModel) ymap.set(id, s); });
       localModel.clear(); localPages.length=0;
     }
-    provider = new WebrtcProvider("explainerboard-"+room, ydoc, { signaling: ["wss://signaling.yjs.dev","wss://y-webrtc-eu.fly.dev"] });
     awareness = provider.awareness;
     awareness.setLocalStateField("user", me);
     awareness.setLocalStateField("presenting", false);
     awareness.on("change", renderPresence);
-    provider.on("status", (ev)=>{ setLive(!!(ev && ev.connected)); });
-    provider.on("peers", (ev)=>{ const n=(ev.webrtcPeers?ev.webrtcPeers.length:0)+(ev.bcPeers?ev.bcPeers.length:0); if(n>0) setLive(true); });
+    try{ setLive(lbRoom.getStatus && lbRoom.getStatus()==="connected"); }catch(e){}
+    try{ lbRoom.subscribe("status", (s)=> setLive(s==="connected")); }catch(e){}
+    try{ provider.on("sync", (ok)=>{ if(ok) setLive(true); }); }catch(e){}
     ymap.observeDeep(()=>notify()); ypages.observe(()=>{ clampPage(); renderPages(); notify(); });
-  } catch (err) { console.warn("Collaboration unavailable — running solo.", err); setLive(false); }
+  } catch (err) { console.warn("Collaboration unavailable — running single-user.", err); setLive(false); }
   renderPages(); render(); renderPresence();
 }
 function usingY(){ return !!ymap; }
