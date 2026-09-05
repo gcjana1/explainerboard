@@ -769,7 +769,7 @@ function renderPresence(){
   if(states.length>0) setLive(true);
   // while someone else is presenting, follow their page so they see the same slide
   if(lockedOut()){
-    const p=presenterId(); const pst=awareness.getStates().get(p);
+    let pst=null; for(const [cid,st] of awareness.getStates()){ if(cid!==awareness.clientID && st && st.presenting){ pst=st; break; } }
     if(pst && pst.page){ const l=pageList(); const idx=l.indexOf(pst.page); if(idx>=0 && idx!==state.pageIdx){ state.pageIdx=idx; state.sel.clear(); renderPages(); render(); } }
   }
   const pg=currentPage(); const seen=new Set();
@@ -783,10 +783,11 @@ function renderPresence(){
 function setLive(on){ const st=document.getElementById("status"); st.classList.toggle("live",!!on); document.getElementById("statusText").textContent=on?"Live":"Solo"; }
 
 /* ---------------- presenter lock ---------------- */
-function presenterId(){ if(!awareness) return null; let min=null; for(const [cid,st] of awareness.getStates()){ if(st && st.presenting){ if(min===null||cid<min) min=cid; } } return min; }
-function amPresenter(){ return !!awareness && presenterId()===awareness.clientID; }
-function lockedOut(){ if(!awareness) return false; const p=presenterId(); return p!==null && p!==awareness.clientID; }
-function presenterName(){ const p=presenterId(); if(p===null||!awareness) return ""; if(p===awareness.clientID) return me.name||"You"; const st=awareness.getStates().get(p); return (st&&st.user&&st.user.name)||"Someone"; }
+function iPresenting(){ if(!awareness) return false; const ls=awareness.getLocalState(); return !!(ls && ls.presenting); }
+function othersPresenting(){ if(!awareness) return false; for(const [cid,st] of awareness.getStates()){ if(cid!==awareness.clientID && st && st.presenting) return true; } return false; }
+function amPresenter(){ return iPresenting(); }
+function lockedOut(){ if(!awareness) return false; return othersPresenting() && !iPresenting(); }
+function presenterName(){ if(!awareness) return ""; if(iPresenting()) return me.name||"You"; for(const [cid,st] of awareness.getStates()){ if(cid!==awareness.clientID && st && st.presenting) return (st.user&&st.user.name)||"Someone"; } return ""; }
 const lockBtn=document.getElementById("lockBtn");
 lockBtn.onclick=()=>{ if(!awareness){ toast("Sharing isn't connected yet — lock works once others join"); return; } if(lockedOut()) return; const ls=awareness.getLocalState(); const cur=ls&&ls.presenting; awareness.setLocalStateField("presenting", !cur); updateLockUI(); toast(!cur?"You locked editing — others are view-only":"Editing unlocked for everyone"); };
 function updateLockUI(){
