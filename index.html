@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Backend asset contract: POST /api/assets multipart field "file" -> JSON {"url":"https://..."} -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>ExplainerBoard — Free Collaborative Whiteboard to Sketch &amp; Explain | Dr. GC Jana</title>
@@ -431,41 +430,13 @@ board.innerHTML = DEFS;
 /* ---- Live collaboration: paste your Liveblocks PUBLIC key (pk_...) here ----
    Get it free at liveblocks.io → your project → API keys. Leave empty to stay
    single-user. The public key is safe to expose in client code. */
-const LIVEBLOCKS_KEY = "pk_dev_aW6-PKNLWa42pd-Dc1teFXNaEpu0BjYOunsygLJx2aXVHCixjViXghEIV7wZTsN4";
+const LIVEBLOCKS_KEY = "";
 let Y=null, ydoc=null, ymap=null, ypages=null, undoMgr=null, provider=null, awareness=null, lbClient=null, lbRoom=null, lbLeave=null;
 let localModel = new Map(), localPages = [];
 let localHistory = [], localFuture = [];
 const observers = [];
 const room = getRoom();
 const me = { name: loadName(), color: pickUserColor() };
-
-
-async function uploadAssetToBackend(blob, filename, mime){
-  const fd = new FormData();
-  fd.append("file", blob, filename || "explainerboard-asset");
-  const res = await fetch(EXPLAINERBOARD_ASSET_API, {
-    method: "POST",
-    body: fd,
-    credentials: "same-origin"
-  });
-  if(!res.ok) throw new Error("Asset upload failed (" + res.status + ")");
-  const data = await res.json();
-  if(!data || !data.url) throw new Error("Asset backend did not return a URL");
-  return data.url;
-}
-
-async function publishRemoteAsset(assetId, url, mime, filename){
-  if(!usingY()) return;
-  yassets.set(assetId, {
-    url, mime: mime || "", filename: filename || "",
-    createdAt: Date.now()
-  });
-}
-
-function getRemoteAssetURL(assetId){
-  const a = yassets && yassets.get(assetId);
-  return a && a.url ? a.url : null;
-}
 
 async function initStore() {
   try {
@@ -1002,78 +973,32 @@ async function ebImportImage(file){
   render(); ebFrameRect(0,0,W,H); toast("Image added — draw on top to annotate");
 }
 async function ebImportPDF(file){
-  if(!file) return;
-  if(!window.pdfjsLib){
-    toast("PDF engine not loaded");
-    return;
+  toast("Loading PDF…");
+  const pdfjs=await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4/build/pdf.min.mjs");
+  try{ pdfjs.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@4/build/pdf.worker.min.mjs"; }catch(e){}
+  const data=await file.arrayBuffer();
+  const pdf=await pdfjs.getDocument({data:data}).promise;
+  const n=Math.min(pdf.numPages, 60);
+  materializePages();
+  let firstPid=null, firstH=700;
+  for(let i=1;i<=n;i++){
+    toast("Rendering slide "+i+" of "+n+"…");
+    const page=await pdf.getPage(i);
+    const base=page.getViewport({scale:1});
+    const scale=1000/(base.width||1000);
+    const vp=page.getViewport({scale:scale});
+    const canvas=document.createElement("canvas"); canvas.width=Math.round(vp.width); canvas.height=Math.round(vp.height);
+    await page.render({canvasContext:canvas.getContext("2d"), viewport:vp}).promise;
+    const href=canvas.toDataURL("image/jpeg", 0.62);
+    const W=1000, H=Math.round(W*(vp.height/(vp.width||1)));
+    const pid="pg"+uid();
+    if(usingY()) ypages.push([pid]); else localPages.push(pid);
+    if(!firstPid){ firstPid=pid; firstH=H; }
+    putShape("img"+uid(), {type:"image", page:pid, x:0, y:0, w:W, h:H, href:href, bg:true, opacity:1});
   }
-
-  try{
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-    const count = Math.min(pdf.numPages, 60);
-    const status = usingY() ? "Uploading PDF to shared storage…" : "Importing PDF…";
-    toast(status);
-
-    for(let p=1; p<=count; p++){
-      const page = await pdf.getPage(p);
-      const viewport = page.getViewport({scale: 1.45});
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.ceil(viewport.width);
-      canvas.height = Math.ceil(viewport.height);
-
-      const ctx = canvas.getContext("2d", {alpha:false});
-      await page.render({canvasContext:ctx, viewport}).promise;
-
-      // Keep the rendered page reasonably sized for storage/bandwidth.
-      const blob = await new Promise(resolve =>
-        canvas.toBlob(resolve, "image/jpeg", 0.72)
-      );
-
-      const assetId = "pdf-" + uid() + "-" + p;
-      const filename = (file.name || "document").replace(/\.[^.]+$/, "")
-        + "-page-" + p + ".jpg";
-
-      if(usingY()){
-        // IMPORTANT: only the URL is synchronized through Yjs/Liveblocks.
-        // The actual image bytes live in the backend/object storage.
-        const url = await uploadAssetToBackend(blob, filename, "image/jpeg");
-        await publishRemoteAsset(assetId, url, "image/jpeg", filename);
-
-        const pid = "pdfp-" + uid();
-        ypages.push([pid]);
-        putShape("img" + uid(), {
-          id: "img" + uid(),
-          type: "image",
-          assetId: assetId,
-          href: url,
-          pageId: pid,
-          x: 80, y: 80,
-          w: viewport.width,
-          h: viewport.height
-        });
-      }else{
-        const href = canvas.toDataURL("image/jpeg", 0.72);
-        const pid = "pdfp-" + uid();
-        pages.push(pid);
-        shapes.set("img" + uid(), {
-          id:"img"+uid(), type:"image", href,
-          pageId:pid, x:80, y:80,
-          w:viewport.width, h:viewport.height
-        });
-      }
-    }
-
-    notify();
-    toast(
-      usingY()
-        ? `PDF imported: ${count} page(s) shared with joined users`
-        : `PDF imported: ${count} page(s)`
-    );
-  }catch(err){
-    console.error(err);
-    toast("PDF import failed: " + (err.message || err));
-  }
+  const l=pageList(); const idx=l.indexOf(firstPid); if(idx>=0) state.pageIdx=idx;
+  state.sel.clear(); renderPages(); render(); ebFrameRect(0,0,1000,firstH);
+  toast(n+" slide"+(n>1?"s":"")+" imported — flip with the page arrows, draw to annotate");
 }
 document.getElementById("importInput").addEventListener("change",(e)=>{ const f=e.target.files[0]; e.target.value=""; ebImportFile(f); });
 
